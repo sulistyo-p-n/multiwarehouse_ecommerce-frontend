@@ -1,0 +1,191 @@
+'use client';
+import { Box, TextField, Typography, Divider, Stack, Button, FormControl, InputLabel, Select, MenuItem, SelectChangeEvent, Grid, FormControlLabel, Checkbox, IconButton } from '@mui/material';
+import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
+import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
+import { useEffect, useState } from 'react';
+import { IconArrowLeft, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
+import { useRouter } from 'next/navigation';
+
+interface InventoryAddStockCommand {
+  sourceWarehouseId : string;
+  productId : string;
+  quantity : number;
+}
+
+export default function CreatePage() {
+  const router = useRouter();
+  
+  const [formData, setFormData] = useState<InventoryAddStockCommand>({
+    sourceWarehouseId: "",
+    productId: "",
+    quantity: 0,
+  });
+
+  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
+  const [activeSingleWarehouse, setActiveSingleWarehouse] = useState<boolean>(true);
+  const [warehouses, setWarehouses] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  const checkLoginUser = () => {
+    if (typeof window !== 'undefined') {
+      const localUser = localStorage.getItem("loginUser");
+      const user = localUser ? JSON.parse(localUser) : {}
+      
+      if (user.role == "WAREHOUSE_ADMIN") {
+        setActiveSingleWarehouse(true);
+        setSelectedWarehouseId(user.adminWarehouse.warehouseId);
+        return;
+      }
+
+      if (user.role != "SUPER_ADMIN") return;
+
+      setActiveSingleWarehouse(false);
+      const superAdminSelectedWarehouseId = localStorage.getItem("superAdminSelectedWarehouseId");
+      if (superAdminSelectedWarehouseId) {
+        setSelectedWarehouseId(superAdminSelectedWarehouseId);
+      }
+    }
+  }
+
+  const getWarehousesAPI = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`);
+      const retrieveData = await res.json();
+      setWarehouses(retrieveData);
+      console.log(retrieveData);
+    } catch (err) { console.log(err); }
+  }
+
+  const getProductsAPI = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?withInactive=true`);
+      const retrieveData = await res.json();
+      setProducts(retrieveData);
+      console.log(retrieveData);
+    } catch (err) { console.log(err); }
+  }
+
+  useEffect(() => {
+    checkLoginUser();
+    getWarehousesAPI();
+    getProductsAPI();
+  }, []);
+
+  const handleWarehouseChange = (value: string) => {
+    localStorage.setItem("superAdminSelectedWarehouseId", value);
+    setSelectedWarehouseId(value);
+  };
+
+  const handleInputChange = (field : string, value : string | boolean) => {
+    setFormData({ ...formData, [field]: value });
+  };
+  
+  const handleOnSubmit = () => {
+    postAPI();
+  };
+
+  const postAPI = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stock_mutations/by_warehouse/${selectedWarehouseId}`, {
+        method: 'POST',
+        body: JSON.stringify(formData),
+        headers: {
+            'Content-type': 'application/json'
+        }
+      });
+      const retrieveData = await res.json();
+      console.log(retrieveData);
+      if (res.status == 200) router.push("/stock_mutations");
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  return (
+    <PageContainer title="Stock Mutation - Add Page" description="this is Stock Mutation - Add Page">
+      <Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12} lg={12}>
+            <DashboardCard title="Inventory" subtitle="Warehouse"
+              action = { warehouses.length > 0 && (
+              <TextField
+                style = {{width: 400}}
+                select
+                label={selectedWarehouseId ? "" : "Select Warehouse"}
+                inputProps={ { readOnly: activeSingleWarehouse } }
+                value={selectedWarehouseId || ""}
+                onChange={(e) => handleWarehouseChange(e.target.value)}
+              >
+                {warehouses.map((option) => (
+                  <MenuItem key={option["id"]} value={option["id"]}>
+                    {option["name"]}
+                  </MenuItem>
+                ))}
+              </TextField>
+              )}
+              />
+          </Grid>
+
+          <Grid item xs={12} lg={12}>
+            <DashboardCard title="Stock" subtitle="Add"  action={
+              <Stack spacing={2} direction="row">
+                <Button variant="outlined" size="medium" startIcon={<IconArrowLeft />} href="/stock_mutations">Back</Button>
+              </Stack>
+              }>
+              <Box>
+                <Grid container spacing={2}>
+
+                  <Grid item xs={12} md={12}>
+                    <TextField
+                      select
+                      label="Source Warehouse"
+                      fullWidth
+                      value={formData.sourceWarehouseId || ""}
+                      onChange={(e) => handleInputChange("sourceWarehouseId", e.target.value)}
+                    >
+                      {warehouses.filter((warehouse : any) => warehouse.id != selectedWarehouseId).map((option) => (
+                        <MenuItem key={option["id"]} value={option["id"]}>
+                          {option["name"]}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+
+                  <Grid item xs={12} md={12}>
+                    <TextField
+                      select
+                      label="Product"
+                      fullWidth
+                      value={formData.productId || ""}
+                      onChange={(e) => handleInputChange("productId", e.target.value)}
+                    >
+                      {products.map((option) => (
+                        <MenuItem key={option["id"]} value={option["id"]}>
+                          {option["name"]}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                  
+                  <Grid item xs={12} md={12}>
+                    <TextField
+                      label="Quantity"
+                      fullWidth
+                      value={formData.quantity}
+                      onChange={(e) => handleInputChange("quantity", e.target.value)}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Divider sx={{ marginY: 2 }}/>
+                <Stack spacing={2} direction="row" display="flex" justifyContent="flex-end">
+                  <Button size="large" variant="contained" color="primary" onClick={handleOnSubmit}>Save</Button>
+                </Stack>
+              </Box>
+            </DashboardCard>
+          </Grid>
+        </Grid>
+      </Box>
+    </PageContainer>
+  );
+}
