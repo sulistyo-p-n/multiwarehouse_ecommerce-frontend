@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multiwarehouse_ecommerce-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: multiwarehouse_ecommerce-app-deployment
+  template:
+    metadata:
+      labels:
+        app: multiwarehouse_ecommerce-app-deployment
+    spec:
+      containers:
+        - name: multiwarehouse_ecommerce-app
+          image: asia-southeast2-docker.pkg.dev/multiwarehouse-447401/multiwarehouse_ecommerce-app:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_PUBLIC_BACKEND_URL
+              value: "http://localhost:8190"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multiwarehouse_ecommerce-app-service
+spec:
+  selector:
+    app: multiwarehouse_ecommerce-app-deployment
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: LoadBalancer
