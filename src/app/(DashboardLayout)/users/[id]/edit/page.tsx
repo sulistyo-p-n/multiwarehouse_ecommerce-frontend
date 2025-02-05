@@ -128,12 +128,17 @@ export default function EditPage({
 
   const putAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`, {
         method: 'PUT',
         body: JSON.stringify(formData),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const currentData = await res.json();
@@ -146,8 +151,18 @@ export default function EditPage({
 
   const getAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       console.log(retrieveData);
       if (res.status == 200) {
@@ -170,7 +185,17 @@ export default function EditPage({
 
   const getWarehousesAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setWarehouses(retrieveData);
       console.log(retrieveData);

@@ -32,6 +32,20 @@ pnpm dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ---
+## Design
+Login Page
+![Login Page](docs/images/login.png)
+
+Register Page
+![Register Page](docs/images/register.png)
+
+Product Catalog Page
+![Product Catalog Page](docs/images/product-catalog.png)
+
+Invetory List Page
+![Invetory List Page](docs/images/inventories-list.png)
+
+---
 ## License
 This project is licensed under the **MIT License**.
 

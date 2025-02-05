@@ -49,7 +49,17 @@ export default function CreatePage() {
 
   const getWarehousesAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setWarehouses(retrieveData);
       console.log(retrieveData);
@@ -58,7 +68,17 @@ export default function CreatePage() {
 
   const getProductsAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setProducts(retrieveData);
       console.log(retrieveData);
@@ -86,11 +106,16 @@ export default function CreatePage() {
 
   const postAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/stock_mutations/by_warehouse/${selectedWarehouseId}`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const retrieveData = await res.json();

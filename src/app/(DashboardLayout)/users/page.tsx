@@ -63,7 +63,17 @@ const ListPage = () => {
 
   const callAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users?withInactive=true&withTrashed=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users?withInactive=true&withTrashed=true`, {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + user.token,
+            'Content-type': 'application/json'
+        }
+      });
       const datas = await res.json();
       console.log(datas);
       setDatas(datas);

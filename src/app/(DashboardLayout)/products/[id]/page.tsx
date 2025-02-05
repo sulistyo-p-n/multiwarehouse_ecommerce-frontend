@@ -52,8 +52,18 @@ export default function DetailPage({
 
   const getAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       console.log(retrieveData);
       if (res.status == 200) setFormData(retrieveData);
@@ -65,12 +75,17 @@ export default function DetailPage({
 
   const softDeleteAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
         method: 'DELETE',
         body: JSON.stringify({}),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const retrieveData = await response.json();
@@ -83,6 +98,10 @@ export default function DetailPage({
 
   const hardDeleteAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
         method: 'DELETE',
@@ -90,7 +109,8 @@ export default function DetailPage({
           "forceDelete": true
         }),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const retrieveData = await response.json();

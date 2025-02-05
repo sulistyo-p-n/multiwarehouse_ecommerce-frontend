@@ -75,12 +75,17 @@ export default function EditPage({
 
   const putAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
         method: 'PUT',
         body: JSON.stringify(formData),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const currentData = await res.json();
@@ -93,8 +98,18 @@ export default function EditPage({
 
   const getAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const id = (await params).id;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products/${id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       retrieveData.categoryId = retrieveData.category.id;
       console.log(retrieveData);
@@ -109,7 +124,17 @@ export default function EditPage({
 
   const getProductCategoriesAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product_categories?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product_categories?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setProductCategories(retrieveData);
       console.log(retrieveData);

@@ -71,11 +71,16 @@ export default function CreatePage() {
 
   const postAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/products`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
-            'Content-type': 'application/json'
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
         }
       });
       const retrieveData = await res.json();
@@ -88,7 +93,17 @@ export default function CreatePage() {
 
   const getProductCategoriesAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product_categories?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/product_categories?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setProductCategories(retrieveData);
       console.log(retrieveData);

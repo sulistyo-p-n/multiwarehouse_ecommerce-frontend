@@ -29,10 +29,15 @@ export default function CreatePage() {
 
   const postAPI = async () => {
     try {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+      
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
+            'Authorization': 'Bearer ' + user.token,
             'Content-type': 'application/json'
         }
       });

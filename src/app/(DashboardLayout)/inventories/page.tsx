@@ -27,21 +27,30 @@ const ListPage = () => {
         callAPI(user.adminWarehouse.warehouseId);
         return;
       }
-
-      if (user.role != "SUPER_ADMIN") return;
-
-      setActiveSingleWarehouse(false);
-      const superAdminSelectedWarehouseId = localStorage.getItem("superAdminSelectedWarehouseId");
-      if (superAdminSelectedWarehouseId) {
-        setSelectedWarehouseId(superAdminSelectedWarehouseId);
-        callAPI(superAdminSelectedWarehouseId);
+      else if (user.role == "SUPER_ADMIN") {
+        setActiveSingleWarehouse(false);
+        const superAdminSelectedWarehouseId = localStorage.getItem("superAdminSelectedWarehouseId");
+        if (superAdminSelectedWarehouseId) {
+          setSelectedWarehouseId(superAdminSelectedWarehouseId);
+          callAPI(superAdminSelectedWarehouseId);
+        }
       }
     }
   }
 
   const getWarehousesAPI = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses?withInactive=true`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const retrieveData = await res.json();
       setWarehouses(retrieveData);
       console.log(retrieveData);
@@ -50,7 +59,17 @@ const ListPage = () => {
 
   const callAPI = async (warehouseId : string) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/inventories/by_warehouse/${warehouseId}`);
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) return;
+      const user = JSON.parse(localUser);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/inventories/by_warehouse/${warehouseId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Bearer ' + user.token,
+          'Content-type': 'application/json'
+        }
+      });
       const datas = await res.json();
       console.log(datas);
       setDatas(datas);
