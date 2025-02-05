@@ -34,16 +34,16 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ---
 ## Design
 Login Page
-![Login Page](docs/images/login.png)
+![Login Page](docs/images/login.PNG)
 
 Register Page
-![Register Page](docs/images/register.png)
+![Register Page](docs/images/register.PNG)
 
 Product Catalog Page
-![Product Catalog Page](docs/images/product-catalog.png)
+![Product Catalog Page](docs/images/product-catalog.PNG)
 
 Invetory List Page
-![Invetory List Page](docs/images/inventories-list.png)
+![Invetory List Page](docs/images/inventories-list.PNG)
 
 ---
 ## License
