@@ -3,12 +3,25 @@ import { Avatar, Box, Button, CardContent, Fab, Grid, MenuItem, Select, Stack, T
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
-import { IconBasket, IconDetails, IconEdit, IconEye, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
+import { IconBasket, IconDetails, IconEdit, IconEye, IconFileInfo, IconPhoto, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import BlankCard from '../components/shared/BlankCard';
+import Dialog, { DialogProps } from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import ImageListItemBar from '@mui/material/ImageListItemBar';
+import ListSubheader from '@mui/material/ListSubheader';
+import IconButton from '@mui/material/IconButton';
+import InfoIcon from '@mui/icons-material/Info';
 
 const ListPage = () => {
   const [datas, setDatas] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [selectedData, setSelectedData] = useState(null);
 
   const callAPI = async () => {
     try {
@@ -24,6 +37,15 @@ const ListPage = () => {
   useEffect(() => {
     callAPI();
   }, []);
+
+  const handleClickOpen = (product : any) => () => {
+    setSelectedData(product);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
     <PageContainer title="Product Catalog - List Page" description="this is Product Catalog - List Page">
@@ -48,13 +70,13 @@ const ListPage = () => {
                         
                       />
                     </Typography>
-                    <Tooltip title="Add To Cart">
+                    <Tooltip title="Add To Cart" onClick={handleClickOpen(product)}>
                       <Fab
                         size="small"
                         color="primary"
                         sx={{ bottom: "75px", right: "15px", position: "absolute" }}
                       >
-                        <IconBasket size="16" />
+                        <IconPhoto size="16" />
                       </Fab>
                     </Tooltip>
                     <CardContent sx={{ p: 3, pt: 2 }}>
@@ -79,6 +101,43 @@ const ListPage = () => {
 
         </Grid>
       </Box>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        scroll='paper'
+        aria-labelledby="scroll-dialog-title"
+        aria-describedby="scroll-dialog-description"
+      >
+        <DialogTitle id="scroll-dialog-title">Product Images</DialogTitle>
+        <DialogContent dividers={true}>
+          <DialogContentText
+            id="scroll-dialog-description"
+            tabIndex={-1}
+          >
+
+          <ImageList sx={{ width: 450, height: 450 }}>
+            {selectedData ? selectedData.images.map((image : any) => (
+              <ImageListItem key={image.path}>
+                <img
+                  srcSet={`${image.path}?w=248&fit=crop&auto=format&dpr=2 2x`}
+                  src={`${image.path}?w=248&fit=crop&auto=format`}
+                  alt={image.name}
+                  loading="lazy"
+                />
+                <ImageListItemBar
+                  title={image.name}
+                  subtitle={image.description}
+                />
+              </ImageListItem>
+            )) : "" }
+          </ImageList>
+
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </PageContainer>
   );
 };
