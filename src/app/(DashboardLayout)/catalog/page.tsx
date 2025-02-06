@@ -2,11 +2,10 @@
 import { Avatar, Box, Button, CardContent, Fab, Grid, MenuItem, Select, Stack, Tooltip, Typography } from '@mui/material';
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
-import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
-import { IconBasket, IconDetails, IconEdit, IconEye, IconFileInfo, IconPhoto, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
+import { IconPhoto } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import BlankCard from '../components/shared/BlankCard';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
@@ -14,9 +13,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
-import ListSubheader from '@mui/material/ListSubheader';
-import IconButton from '@mui/material/IconButton';
-import InfoIcon from '@mui/icons-material/Info';
 
 const ListPage = () => {
   const [datas, setDatas] = useState([]);
@@ -37,6 +33,8 @@ const ListPage = () => {
   useEffect(() => {
     callAPI();
     const interval = setInterval(callAPI, 1000 * 5);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleClickOpen = (product : any) => () => {
