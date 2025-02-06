@@ -73,7 +73,7 @@ export default function DetailPage({
         router.push("/404");
       }
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }
@@ -107,7 +107,7 @@ export default function DetailPage({
       }
 
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }
@@ -143,7 +143,7 @@ export default function DetailPage({
       }
 
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }

@@ -128,8 +128,8 @@ export default function CreatePage() {
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await res.json();
-      console.log(retrieveData);
+      const currentData = await res.json();
+      console.log(currentData);
       if (res.status == 200) {
         enqueueSnackbar("Product Stock Reduced", { variant: "success" });
         router.push("/inventories");
@@ -139,7 +139,7 @@ export default function CreatePage() {
         enqueueSnackbar(message, { variant: "error" });
       }
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }

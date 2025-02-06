@@ -44,7 +44,7 @@ export default function EditPage({
       if (res.status == 200) setData(currentData);
       else router.push("/404");
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }
@@ -76,7 +76,7 @@ export default function EditPage({
         enqueueSnackbar(message, { variant: "error" });
       }
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }

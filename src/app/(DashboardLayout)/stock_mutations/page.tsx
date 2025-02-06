@@ -182,7 +182,7 @@ const ListPage = () => {
         enqueueSnackbar(message, { variant: "error" });
       }
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }
@@ -212,7 +212,7 @@ const ListPage = () => {
         enqueueSnackbar(message, { variant: "error" });
       }
     } catch (err) {
-      const message = err?.message || "Internal Server Error";
+      const message = "Internal Server Error";
       console.log(message);
       enqueueSnackbar(message, { variant: "error" });
     }
