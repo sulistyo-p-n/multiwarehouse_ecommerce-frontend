@@ -36,6 +36,7 @@ const ListPage = () => {
 
   useEffect(() => {
     callAPI();
+    const interval = setInterval(callAPI, 1000 * 5);
   }, []);
 
   const handleClickOpen = (product : any) => () => {
@@ -44,6 +45,7 @@ const ListPage = () => {
   };
 
   const handleClose = () => {
+    setSelectedData(null);
     setOpen(false);
   };
 
@@ -88,7 +90,7 @@ const ListPage = () => {
                         mt={1}
                       >
                         <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="h6">${product.price}</Typography>
+                        <Typography>Rp. {product.price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}</Typography>
                         <Typography>{product.quantity} pcs</Typography>
                         </Grid>
                       </Stack>
@@ -107,15 +109,17 @@ const ListPage = () => {
         scroll='paper'
         aria-labelledby="scroll-dialog-title"
         aria-describedby="scroll-dialog-description"
+        maxWidth="lg"
+        fullWidth
       >
-        <DialogTitle id="scroll-dialog-title">Product Images</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">{selectedData ? selectedData.name : ""} - Product Images</DialogTitle>
         <DialogContent dividers={true}>
           <DialogContentText
             id="scroll-dialog-description"
             tabIndex={-1}
           >
 
-          <ImageList sx={{ width: 450, height: 450 }}>
+          <ImageList>
             {selectedData ? selectedData.images.map((image : any) => (
               <ImageListItem key={image.path}>
                 <img
