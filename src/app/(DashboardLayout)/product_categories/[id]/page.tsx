@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconRefresh, IconSquareX, IconTrash, IconX } from '@tabler/icons-react';
 import { notFound, useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 interface ProductCategoryEntity {
   id?: string;
@@ -21,6 +22,8 @@ export default function DetailPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [data, setData] = useState<ProductCategoryEntity>({});
 
   const getAPI = async () => {
@@ -42,7 +45,9 @@ export default function DetailPage({
       if (res.status == 200) setData(currentData);
       else router.push("/404");
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   };
 
@@ -63,9 +68,20 @@ export default function DetailPage({
       });
       const currentData = await response.json();
       console.log(currentData);
-      return currentData;
+
+      if (response.status == 200) {
+        enqueueSnackbar("Product Category Soft Deleted", { variant: "success" });
+        router.push("/product_categories");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
@@ -88,18 +104,26 @@ export default function DetailPage({
       });
       const currentData = await response.json();
       console.log(currentData);
-      return currentData;
+
+      if (response.status == 200) {
+        enqueueSnackbar("Product Category Hard Deleted", { variant: "success" });
+        router.push("/product_categories");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log("error : " + err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
   const deleteOnSubmit = async () => {
     const id = (await params).id;
-    const result = (data.isSoftDeleted!) ? (await hardDeleteAPI()) : (await softDeleteAPI());
-    if (result) {
-      router.push("/product_categories");
-    }
+    (data.isSoftDeleted!) ? (await hardDeleteAPI()) : (await softDeleteAPI());
   }
 
   useEffect(() => {

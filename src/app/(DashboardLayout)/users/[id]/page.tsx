@@ -3,8 +3,9 @@ import { Box, TextField, Divider, Stack, Button, Chip, Grid, FormControlLabel, C
 import PageContainer from '@/app/(DashboardLayout)/components/container/PageContainer';
 import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCard';
 import { useEffect, useState } from 'react';
-import { IconArrowLeft, IconRefresh, IconSquareX, IconTrash, IconX } from '@tabler/icons-react';
-import { notFound, useRouter } from 'next/navigation';
+import { IconArrowLeft, IconRefresh, IconTrash, IconX } from '@tabler/icons-react';
+import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 import moment from 'moment';
 
 interface UserEntity {
@@ -45,6 +46,8 @@ export default function DetailPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [formData, setFormData] = useState<UserEntity>({});
 
   const [warehouses, setWarehouses] = useState([]);
@@ -72,7 +75,9 @@ export default function DetailPage({
       if (res.status == 200) setFormData(retrieveData);
       else router.push("/404");
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   };
 
@@ -91,11 +96,22 @@ export default function DetailPage({
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await response.json();
-      console.log(retrieveData);
-      return retrieveData;
+      const currentData = await response.json();
+      console.log(currentData);
+
+      if (response.status == 200) {
+        enqueueSnackbar("User Soft Deleted", { variant: "success" });
+        router.push("/users");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
@@ -116,20 +132,28 @@ export default function DetailPage({
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await response.json();
-      console.log(retrieveData);
-      return retrieveData;
+      const currentData = await response.json();
+      console.log(currentData);
+
+      if (response.status == 200) {
+        enqueueSnackbar("User Hard Deleted", { variant: "success" });
+        router.push("/users");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log("error : " + err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
   const deleteOnSubmit = async () => {
     const id = (await params).id;
-    const result = (isSoftDeleted()) ? (await hardDeleteAPI()) : (await softDeleteAPI());
-    if (result) {
-      router.push("/users");
-    }
+    (isSoftDeleted()) ? (await hardDeleteAPI()) : (await softDeleteAPI());
   }
 
   const getWarehousesAPI = async () => {

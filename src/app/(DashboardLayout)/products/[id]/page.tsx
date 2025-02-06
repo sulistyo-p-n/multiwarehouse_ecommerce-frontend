@@ -5,7 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconRefresh, IconSquareX, IconTrash, IconX } from '@tabler/icons-react';
 import { notFound, useRouter } from 'next/navigation';
-import moment from 'moment';
+import { useSnackbar } from "notistack";
 
 interface ProductEntity {
   id? : string;
@@ -44,6 +44,8 @@ export default function DetailPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [formData, setFormData] = useState<ProductEntity>({});
 
   const isSoftDeleted = () => {
@@ -67,9 +69,13 @@ export default function DetailPage({
       const retrieveData = await res.json();
       console.log(retrieveData);
       if (res.status == 200) setFormData(retrieveData);
-      else router.push("/404");
+      else {
+        router.push("/404");
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   };
 
@@ -88,11 +94,22 @@ export default function DetailPage({
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await response.json();
-      console.log(retrieveData);
-      return retrieveData;
+      const currentData = await response.json();
+      console.log(currentData);
+
+      if (response.status == 200) {
+        enqueueSnackbar("Product Soft Deleted", { variant: "success" });
+        router.push("/products");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
@@ -113,20 +130,28 @@ export default function DetailPage({
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await response.json();
-      console.log(retrieveData);
-      return retrieveData;
+      const currentData = await response.json();
+      console.log(currentData);
+
+      if (response.status == 200) {
+        enqueueSnackbar("Product Hard Deleted", { variant: "success" });
+        router.push("/products");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
+
     } catch (err) {
-      console.log("error : " + err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
   const deleteOnSubmit = async () => {
     const id = (await params).id;
-    const result = (isSoftDeleted()) ? (await hardDeleteAPI()) : (await softDeleteAPI());
-    if (result) {
-      router.push("/products");
-    }
+    (isSoftDeleted()) ? (await hardDeleteAPI()) : (await softDeleteAPI());
   }
 
   useEffect(() => {

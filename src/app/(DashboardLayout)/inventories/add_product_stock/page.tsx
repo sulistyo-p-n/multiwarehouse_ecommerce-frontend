@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 interface InventoryAddStockCommand {
   productId : string;
@@ -13,6 +14,7 @@ interface InventoryAddStockCommand {
 
 export default function CreatePage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   
   const [formData, setFormData] = useState<InventoryAddStockCommand>({
     productId: "",
@@ -126,11 +128,20 @@ export default function CreatePage() {
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await res.json();
-      console.log(retrieveData);
-      if (res.status == 200) router.push("/inventories");
+      const currentData = await res.json();
+      console.log(currentData);
+      if (res.status == 200) {
+        enqueueSnackbar("Product Stock Added", { variant: "success" });
+        router.push("/inventories");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

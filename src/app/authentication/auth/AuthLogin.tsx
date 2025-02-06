@@ -12,6 +12,7 @@ import Link from "next/link";
 
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
 import { useRouter } from "next/navigation";
+import { useSnackbar } from "notistack";
 
 interface loginType {
   title?: string;
@@ -26,6 +27,7 @@ interface loginCommand {
 
 export default function AuthLogin({ title, subtitle, subtext }: loginType) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
     
   const [formData, setFormData] = useState<loginCommand>({
     email: "",
@@ -53,12 +55,18 @@ export default function AuthLogin({ title, subtitle, subtext }: loginType) {
       console.log(retrieveData);
       if (res.status == 200) {
         localStorage.setItem("loginUser", JSON.stringify(retrieveData));
-        
+        enqueueSnackbar("Welcome Back " + retrieveData.username + "!", { variant: "info" });
         if (retrieveData.role == "CUSTOMER") router.push("/catalog");
         else router.push("/");
+      } else {
+        const message = retrieveData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
       }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

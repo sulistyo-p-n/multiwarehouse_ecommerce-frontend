@@ -5,6 +5,7 @@ import Link  from 'next/link';
 import CustomTextField from '@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField';
 import { Stack } from '@mui/system';
 import { useRouter } from "next/navigation";
+import { useSnackbar } from 'notistack';
 
 interface registerType {
     title?: string;
@@ -20,6 +21,7 @@ interface registerCommand {
 
 export default function AuthRegister({ title, subtitle, subtext }: registerType) {
     const router = useRouter();
+      const { enqueueSnackbar } = useSnackbar();
  
     const [formData, setFormData] = useState<registerCommand>({
         username: "",
@@ -47,10 +49,17 @@ export default function AuthRegister({ title, subtitle, subtext }: registerType)
             const retrieveData = await res.json();
             console.log(retrieveData);
             if (res.status == 200) {
-            router.push("/authentication/login");
-            }
+                enqueueSnackbar("Congratulations, your account has been created! Now, try to login.", { variant: "success" });
+                router.push("/authentication/login");
+            } else {
+                const message = retrieveData.message || "Internal Server Error";
+                console.log(message);
+                enqueueSnackbar(message, { variant: "error" });
+              }
         } catch (err) {
-            console.log(err);
+            const message = err?.message || "Internal Server Error";
+            console.log(message);
+            enqueueSnackbar(message, { variant: "error" });
         }
     }
 

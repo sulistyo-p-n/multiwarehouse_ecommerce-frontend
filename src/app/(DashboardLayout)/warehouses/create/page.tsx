@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconRefresh } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 interface Address {
   street?: string;
@@ -24,6 +25,8 @@ interface WarehouseEntity {
 
 export default function CreatePage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+      
   const [data, setData] = useState<WarehouseEntity>({active: true});
   const [address, setAddress] = useState<Address>({});
 
@@ -33,7 +36,7 @@ export default function CreatePage() {
       if (!localUser) return;
       const user = JSON.parse(localUser);
       
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses`, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
@@ -41,11 +44,20 @@ export default function CreatePage() {
             'Content-type': 'application/json'
         }
       });
-      const currentData = await res.json();
+      const currentData = await response.json();
       console.log(currentData);
-      if (res.status == 200) router.push("/warehouses");
+      if (response.status == 200) {
+        enqueueSnackbar("Warehouse Created", { variant: "success" });
+        router.push("/warehouses");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

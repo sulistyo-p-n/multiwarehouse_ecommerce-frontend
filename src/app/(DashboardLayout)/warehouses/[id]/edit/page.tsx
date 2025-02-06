@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconRefresh } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 interface WarehouseEntity {
   id?: string;
@@ -27,6 +28,8 @@ export default function EditPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [data, setData] = useState<WarehouseEntity>({});
 
   const getAPI = async () => {
@@ -48,7 +51,9 @@ export default function EditPage({
       if (res.status == 200) setData(currentData);
       else router.push("/404");
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   };
 
@@ -59,7 +64,7 @@ export default function EditPage({
       const user = JSON.parse(localUser);
 
       const id = (await params).id;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses/${id}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/warehouses/${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers: {
@@ -67,11 +72,20 @@ export default function EditPage({
             'Content-type': 'application/json'
         }
       });
-      const currentData = await res.json();
+      const currentData = await response.json();
       console.log(currentData);
-      if (res.status == 200) router.push("/warehouses");
+      if (response.status == 200) {
+        enqueueSnackbar("Warehouse Updated", { variant: "success" });
+        router.push("/warehouses");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

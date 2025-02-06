@@ -6,9 +6,11 @@ import { DataGrid, GridColDef, GridRowParams } from '@mui/x-data-grid';
 import { IconCheck, IconDetails, IconEdit, IconEye, IconMinus, IconPlus, IconRefresh, IconTrash, IconX } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 const ListPage = () => {
   const router = useRouter();
+    const { enqueueSnackbar } = useSnackbar();
 
   const [datas, setDatas] = useState<any>({});
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string | null>(null);
@@ -169,11 +171,20 @@ const ListPage = () => {
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await res.json();
-      console.log(retrieveData);
-      if (res.status == 200) callAPI(selectedWarehouseId || "");
+      const currentData = await res.json();
+      console.log(currentData);
+      if (res.status == 200) {
+        enqueueSnackbar("Stock Mutation Rejected", { variant: "success" });
+        callAPI(selectedWarehouseId || "");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
@@ -190,11 +201,20 @@ const ListPage = () => {
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await res.json();
-      console.log(retrieveData);
-      if (res.status == 200) callAPI(selectedWarehouseId || "");
+      const currentData = await res.json();
+      console.log(currentData);
+      if (res.status == 200) {
+        enqueueSnackbar("Stock Mutation Approved", { variant: "success" });
+        callAPI(selectedWarehouseId || "");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

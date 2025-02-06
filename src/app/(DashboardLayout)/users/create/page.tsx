@@ -5,7 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconPlus, IconRefresh, IconTrash } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
-import { Delete } from '@mui/icons-material';
+import { useSnackbar } from "notistack";
 
 interface UserEntity {
   username : string;
@@ -40,6 +40,7 @@ interface AddressEntity {
 
 export default function CreatePage() {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
   
   const [formData, setFormData] = useState<UserEntity>({
     username: "",
@@ -117,7 +118,7 @@ export default function CreatePage() {
       if (!localUser) return;
       const user = JSON.parse(localUser);
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/users`, {
         method: 'POST',
         body: JSON.stringify(formData),
         headers: {
@@ -125,11 +126,20 @@ export default function CreatePage() {
           'Content-type': 'application/json'
         }
       });
-      const retrieveData = await res.json();
-      console.log(retrieveData);
-      if (res.status == 200) router.push("/users");
+      const currentData = await response.json();
+      console.log(currentData);
+      if (response.status == 200) {
+        enqueueSnackbar("User Created", { variant: "success" });
+        router.push("/users");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 

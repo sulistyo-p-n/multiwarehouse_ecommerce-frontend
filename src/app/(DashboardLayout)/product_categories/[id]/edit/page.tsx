@@ -5,6 +5,7 @@ import DashboardCard from '@/app/(DashboardLayout)/components/shared/DashboardCa
 import { useEffect, useState } from 'react';
 import { IconArrowLeft, IconRefresh } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import { useSnackbar } from "notistack";
 
 interface ProductCategoryEntity {
   id?: string;
@@ -20,6 +21,8 @@ export default function EditPage({
   params: Promise<{ id: string }>
 }) {
   const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [data, setData] = useState<ProductCategoryEntity>({});
 
   const getAPI = async () => {
@@ -41,7 +44,9 @@ export default function EditPage({
       if (res.status == 200) setData(currentData);
       else router.push("/404");
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   };
 
@@ -62,9 +67,18 @@ export default function EditPage({
       });
       const currentData = await res.json();
       console.log(currentData);
-      if (res.status == 200) router.push("/product_categories");
+      if (res.status == 200) {
+        enqueueSnackbar("Product Category Updated", { variant: "success" });
+        router.push("/product_categories");
+      } else {
+        const message = currentData.message || "Internal Server Error";
+        console.log(message);
+        enqueueSnackbar(message, { variant: "error" });
+      }
     } catch (err) {
-      console.log(err);
+      const message = err?.message || "Internal Server Error";
+      console.log(message);
+      enqueueSnackbar(message, { variant: "error" });
     }
   }
 
