@@ -1,9 +1,9 @@
 "use client";
 import { styled, Container, Box } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/app/(DashboardLayout)/layout/header/Header";
 import Sidebar from "@/app/(DashboardLayout)/layout/sidebar/Sidebar";
-
+import { useRouter } from 'next/navigation';
 
 const MainWrapper = styled("div")(() => ({
   display: "flex",
@@ -33,6 +33,19 @@ export default function RootLayout({
 }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const router = useRouter();
+
+  const checkLoginUser = () => {
+    if (typeof window !== 'undefined') {
+      const localUser = localStorage.getItem("loginUser");
+      if (!localUser) router.push("/authentication/login");
+    }
+  }
+  
+  useEffect(() => {
+    checkLoginUser();
+  }, []);
+
   return (
     <MainWrapper className="mainwrapper">
       {/* ------------------------------------------- */}
