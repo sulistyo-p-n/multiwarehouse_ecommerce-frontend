@@ -14,10 +14,41 @@ import ImageList from '@mui/material/ImageList';
 import ImageListItem from '@mui/material/ImageListItem';
 import ImageListItemBar from '@mui/material/ImageListItemBar';
 
+interface ProductEntity {
+  id? : string;
+  code? : string;
+  name? : string;
+  description? : string;
+  price? : number;
+  active? : boolean;
+  category? : ProductCategoryEntity;
+  images? : Array<ProductImageEntity>;
+  quantity? : number;
+  softDeleted? : boolean;
+}
+
+interface ProductCategoryEntity {
+  id : string;
+  code : string;
+  name : string;
+  description : string;
+  active : boolean;
+  isSoftDeleted : boolean;
+}
+
+interface ProductImageEntity {
+  id : string;
+  name : string;
+  description : string;
+  path : string;
+  front : boolean;
+  active : boolean;
+}
+
 const ListPage = () => {
   const [datas, setDatas] = useState([]);
   const [open, setOpen] = useState(false);
-  const [selectedData, setSelectedData] = useState(null);
+  const [selectedData, setSelectedData] = useState<ProductEntity>({});
 
   const callAPI = async () => {
     try {
@@ -43,7 +74,7 @@ const ListPage = () => {
   };
 
   const handleClose = () => {
-    setSelectedData(null);
+    setSelectedData({});
     setOpen(false);
   };
 
@@ -110,7 +141,7 @@ const ListPage = () => {
         maxWidth="lg"
         fullWidth
       >
-        <DialogTitle id="scroll-dialog-title">{selectedData ? selectedData.name : ""} - Product Images</DialogTitle>
+        <DialogTitle id="scroll-dialog-title">{selectedData?.name ?? ""} - Product Images</DialogTitle>
         <DialogContent dividers={true}>
           <DialogContentText
             id="scroll-dialog-description"
@@ -118,7 +149,7 @@ const ListPage = () => {
           >
 
           <ImageList>
-            {selectedData ? selectedData.images.map((image : any) => (
+            {selectedData?.images ? selectedData.images.map((image : any) => (
               <ImageListItem key={image.path}>
                 <img
                   srcSet={`${image.path}?w=248&fit=crop&auto=format&dpr=2 2x`}
