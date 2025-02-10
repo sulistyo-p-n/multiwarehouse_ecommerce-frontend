@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: frontend-service
-          image: asia-southeast2-docker.pkg.dev/multiwarehouse-447401/frontend.service:1.0-SNAPSHOT
+          image: asia-southeast2-docker.pkg.dev/multiwarehouse-447401/com-multiwarehouse-app-repository/frontend.service:1.0-SNAPSHOT
           ports:
             - containerPort: 3000
           env:
